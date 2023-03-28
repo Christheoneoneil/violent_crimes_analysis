@@ -1,5 +1,4 @@
 import pandas as pd
-from pytube import YouTube
 import swifter
 import os
 import config
@@ -37,6 +36,7 @@ def scrape_audio(scrape_links: pd.DataFrame, link_col: str, output_d: str) -> No
     """
     
     if (os.path.exists(output_d)) != True:
+        from pytube import YouTube
         df = scrape_links.copy()
         df["vids"] = df[link_col].swifter.apply(YouTube)
         
@@ -97,7 +97,11 @@ def diratzation(file_list: list, input_d: str) -> None:
     full_files = [input_d + "/" + filename for filename in file_list]
     diarizations = pool.map(pipeline, full_files)
 
-    
+    rttm_files = ["audiorttm/" + filename[:-4] + ".rttm" for filename in file_list]
+
+    for file, diar in zip(rttm_files, diarizations):
+        with open(file, "w") as rttm:
+            diar.write_rttm(rttm)
 
 links = read_file("links.csv")
 audio_file_dir = "audio"
