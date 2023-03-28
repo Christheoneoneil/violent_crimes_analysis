@@ -90,6 +90,14 @@ def diratzation(file_list: list, input_d: str) -> None:
     pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization@2.1",
                                         use_auth_token=config.auth_token)
 
+    
+    from multiprocessing import cpu_count
+    from pathos.multiprocessing import ProcessingPool as Pool
+    pool = Pool(cpu_count()-1)
+    full_files = [input_d + "/" + filename for filename in file_list]
+    diarizations = pool.map(pipeline, full_files)
+
+    
 
 links = read_file("links.csv")
 audio_file_dir = "audio"
