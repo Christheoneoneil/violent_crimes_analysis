@@ -5,6 +5,7 @@ import config
 import ffmpy 
 import glob
 import shutil
+import re
 
 
 def read_file(filename:str) -> pd.DataFrame:
@@ -61,7 +62,7 @@ def file_conversion(file_list: list, input_d:str, wav_dir:str)-> None:
     if (os.path.exists(wav_dir)) != True:
         for file in file_list:
             ff = ffmpy.FFmpeg(inputs={input_d + "/" +file: None}, 
-                                outputs={file[:-4] + ".wav": None})
+                                outputs={re.sub(r"\s+", "", file[:-4] + ".wav"): None})
             ff.run()
 
         files_to_move = glob.glob("*.wav")
@@ -91,17 +92,18 @@ def diratzation(file_list: list, input_d: str) -> None:
                                         use_auth_token=config.auth_token)
 
     
-    from multiprocessing import cpu_count
-    from pathos.multiprocessing import ProcessingPool as Pool
-    pool = Pool(cpu_count()-1)
+    
     full_files = [input_d + "/" + filename for filename in file_list]
-    diarizations = pool.map(pipeline, full_files)
-
-    rttm_files = ["audiorttm/" + filename[:-4] + ".rttm" for filename in file_list]
-
+    diar_func = lambda x: pipeline(x)
+    diarizations = [diar_func(file) for file in full_files]
+    rttm_dir = "audiorttm"
+    os.mkdir(rttm_dir)
+    rttm_files = [rttm_dir + "/" + filename[:-4] + ".rttm" for filename in file_list]
+    
     for file, diar in zip(rttm_files, diarizations):
         with open(file, "w") as rttm:
             diar.write_rttm(rttm)
+
 
 links = read_file("links.csv")
 audio_file_dir = "audio"
