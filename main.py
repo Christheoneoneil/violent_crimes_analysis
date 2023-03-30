@@ -1,5 +1,6 @@
 import os
 from audio_diarization import read_file, scrape_audio, file_conversion, diratzation 
+from transcripts import get_video_id
 
 def main()-> None:
     """
@@ -10,6 +11,7 @@ def main()-> None:
 
     Returns: None
     """
+    
     links = read_file("links.csv")
     audio_file_dir = "audio"
     scrape_audio(scrape_links=links, 
@@ -25,6 +27,7 @@ def main()-> None:
     rm_dir = "audiorttm"
     diratzation(file_list=wav_files, input_d=audio_wav_dir, rttm_dir=rm_dir)
     
+    ids = get_video_id(vid_links=links, link_col="Link")
 
 if __name__ == "__main__":
     main()
