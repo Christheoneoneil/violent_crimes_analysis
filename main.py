@@ -1,7 +1,15 @@
 import os
 from audio_diarization import read_file, scrape_audio, file_conversion, diratzation 
 
-def main():
+def main()-> None:
+    """
+    structures code for different interactions
+    of scripts 
+
+    Params: None
+
+    Returns: None
+    """
     links = read_file("links.csv")
     audio_file_dir = "audio"
     scrape_audio(scrape_links=links, 
@@ -16,6 +24,7 @@ def main():
     wav_files = os.listdir(audio_wav_dir)
     rm_dir = "audiorttm"
     diratzation(file_list=wav_files, input_d=audio_wav_dir, rttm_dir=rm_dir)
+    
 
 if __name__ == "__main__":
     main()
