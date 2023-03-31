@@ -58,18 +58,20 @@ def file_conversion(file_list: list, input_d:str, wav_dir:str)-> None:
     Returns: 
     None
     """
-    if (os.path.exists(wav_dir)) != True:
+    try:
+        os.mkdir(wav_dir)
         for file in file_list:
             ff = ffmpy.FFmpeg(inputs={input_d + "/" +file: None}, 
                                 outputs={file[:-4] + ".wav": None})
             ff.run()
 
         files_to_move = glob.glob("*.wav")
-        os.mkdir(wav_dir)
+        
         for file in files_to_move:
             new_path = wav_dir + "/" + file
             shutil.move(file, new_path)
-
+    except OSError:
+        pass
 
 def diratzation(file_list: list, input_d: str, rttm_dir: str) -> None:
     """
@@ -84,7 +86,8 @@ def diratzation(file_list: list, input_d: str, rttm_dir: str) -> None:
     None
 
     """
-    if (os.path.exists(rttm_dir)) != True:
+    try:
+        os.mkdir(rttm_dir)
         from pyannote.audio import Pipeline
 
         pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization@2.1",
@@ -95,9 +98,11 @@ def diratzation(file_list: list, input_d: str, rttm_dir: str) -> None:
         full_files = [input_d + "/" + filename for filename in file_list]
         diar_func = lambda x: pipeline(x)
         diarizations = [diar_func(file) for file in full_files]
-        os.mkdir(rttm_dir)
+        
         rttm_files = [rttm_dir + "/" + filename[:-4] + ".rttm" for filename in file_list]
         
         for file, diar in zip(rttm_files, diarizations):
             with open(file, "w") as rttm:
                 diar.write_rttm(rttm)
+    except OSError:
+        pass

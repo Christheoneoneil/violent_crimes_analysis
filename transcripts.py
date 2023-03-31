@@ -41,7 +41,7 @@ def get_transcripts(vid_ids: list, trans_dir: str, titles: list) -> None:
     None
     """
 
-    if (os.path.exists(trans_dir)) != True:
+    try:
         os.mkdir(trans_dir)
         from youtube_transcript_api import YouTubeTranscriptApi
         index = 0
@@ -59,6 +59,8 @@ def get_transcripts(vid_ids: list, trans_dir: str, titles: list) -> None:
                 print(e)
                 
             index += 1
+    except OSError:
+        pass
 
 def read_in_trans(file_list: list, trans_dir: str) -> pd.DataFrame:
     """
