@@ -6,13 +6,13 @@ from PIL import Image
 from pdf2image import convert_from_path
 
 # define pdf path
-pdf_path = 'Atchison_note_1.pdf'
+pdf_path = 'Atchison_note_1.pdf'                # change to desired pdf
 
 # extract text
 text = extract_text(pdf_path)
 
 # define folder path
-pdf_image_dir = '/Users/kevinmotia/Documents/Classes/Spring2023/CSYS303/project'
+pdf_image_dir = '/filepath'                     # change to filepath
 if not os.path.exists(pdf_image_dir):
     os.makedirs(pdf_image_dir)
 
