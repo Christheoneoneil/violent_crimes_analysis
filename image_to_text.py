@@ -4,6 +4,8 @@ import pytesseract
 from pdfminer.high_level import extract_text
 from pdf2image import convert_from_path
 
+'''Note: This script only works reliably on identifying on non-handwritten text.'''
+
 def extract_handwritten_text(pdf_path, output_file):
     # extract text
     text = extract_text(pdf_path)
