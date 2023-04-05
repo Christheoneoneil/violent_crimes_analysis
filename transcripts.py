@@ -2,65 +2,36 @@ import pandas as pd
 import swifter
 import json
 import os
+import re
 
 
-def get_video_id(vid_links: pd.DataFrame, link_col="Link") -> pd.DataFrame:
-    """
-    parses video id from link 
-
-    Params:
-    vid_links:
-    link_col:
-
-    Returns:
-    list of link ids
-    """
-    
-    from urllib.parse import urlparse
-    
-    df = vid_links.copy()
-    df["url_dat"] = df[link_col].swifter.apply(urlparse)
-    qurery_func = lambda x: x.query
-    df["query"] = df["url_dat"].swifter.apply(qurery_func)
-    get_id_func = lambda x: x[2:]
-    df["vid_id"] = df["query"].swifter.apply(get_id_func)
-    
-    return list(df["vid_id"])
-
-
-def get_transcripts(vid_ids: list, trans_dir: str, titles: list) -> None:
+def get_transcripts(wav_list: list, wav_dir: str, trans_dir: list) -> None:
     """
     use youtube api gather and store transcripts 
 
     Params:
-    vid_ids: list of video ids
-    trans_dir: directory to store transcripts
-    titles: list of video titles
+    wav_list: list of wav files 
+    wav_dir: directory to read in wav files
+    trans_dir: transcript directry to write to
 
     Returns:
     None
     """
-
+    import whisper
     try:
         os.mkdir(trans_dir)
-        from youtube_transcript_api import YouTubeTranscriptApi
-        index = 0
-        get_vid_funct = lambda x: YouTubeTranscriptApi.get_transcript(str(x))
-        for id in vid_ids:
-            try:
-                transcript = get_vid_funct(id)
-                title = titles[index]
-                print(id)
-                print(title)
-                with open(trans_dir + "/" + title + ".json", "w") as final:
-                    json.dump(transcript, final)
-                
-            except Exception as e:
-                print(e)
-                
-            index += 1
-    except OSError:
-        pass
+        model = whisper.load_model("base")
+        res_func = lambda x: model.transcribe(x, word_timestamps=False)
+       
+        for file in wav_list:
+            result = res_func(os.path.join(wav_dir, file))
+            with open(os.path.join(trans_dir, re.sub(r"\s+", "", file[:-5]) + ".json"), "w", encoding="utf-8") as file:
+                print(file)
+                segments = result["segments"]
+                json.dump(segments, file, indent=4)
+    except Exception as e:
+        print(e)
+
 
 def read_in_trans(file_list: list, trans_dir: str) -> pd.DataFrame:
     """

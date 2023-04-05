@@ -5,7 +5,7 @@ import config
 import ffmpy 
 import glob
 import shutil
-
+import re
 
 def read_file(filename:str) -> pd.DataFrame:
     """
@@ -99,7 +99,7 @@ def diratzation(file_list: list, input_d: str, rttm_dir: str) -> None:
         diar_func = lambda x: pipeline(x)
         diarizations = [diar_func(file) for file in full_files]
         
-        rttm_files = [rttm_dir + "/" + filename[:-4] + ".rttm" for filename in file_list]
+        rttm_files = [rttm_dir + "/" + re.sub(r"\s+", "", filename[:-5]) + ".rttm" for filename in file_list]
         
         for file, diar in zip(rttm_files, diarizations):
             with open(file, "w") as rttm:
