@@ -7,7 +7,7 @@ import re
 
 def get_transcripts(wav_list: list, wav_dir: str, trans_dir: list) -> None:
     """
-    use youtube api gather and store transcripts 
+    use whsiper gather and store transcripts 
 
     Params:
     wav_list: list of wav files 
