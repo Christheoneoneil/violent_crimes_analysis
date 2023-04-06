@@ -5,6 +5,42 @@ import os
 import re
 
 
+def get_segments(rttm_dir: str) -> dict:
+    """
+    gets the segments of the wavs files for
+    diffeent speakers
+
+    Params:
+    rttm_dir: directory containing rttm files
+
+    Returns:
+    None
+    """
+
+    rttm_split_char = " 1 "
+    rttm_end_of_req_info = "\n"
+    noise_char = "<NA>"
+    spearker_info_start = "SPEAKER"
+    speaker_segs_dict = {}
+    
+    for file in os.listdir(rttm_dir):
+        with open(os.path.join(rttm_dir, file), "r") as f:
+            filelines = f.read().split(rttm_split_char)
+            segments = [seg.split(rttm_end_of_req_info)[0] for seg in filelines if "_" in seg]
+            segments_rem_na = [seg.replace(noise_char, "") for seg in segments]
+            
+            get_floats = lambda x: re.findall(r"\d+\.\d+", x)
+            get_substring = lambda x: x[x.index(spearker_info_start):].replace(" ", "")
+            
+            secs_to_mil = lambda x: float(x)*1000
+            to_stamps = lambda x: [x[0], x[0] + x[1]]
+            segments_cleaned = [[to_stamps(list(map(secs_to_mil, get_floats(seg)))), 
+                                 get_substring(seg)] for seg in segments_rem_na]
+        speaker_segs_dict[file[:-5]] = segments_cleaned
+    
+    return speaker_segs_dict
+
+
 def get_transcripts(wav_list: list, wav_dir: str, trans_dir: list) -> None:
     """
     use whsiper gather and store transcripts 
