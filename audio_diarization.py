@@ -7,6 +7,7 @@ import glob
 import shutil
 import re
 
+
 def read_file(filename:str) -> pd.DataFrame:
     """
     reads in provided file containing links
@@ -62,7 +63,7 @@ def file_conversion(file_list: list, input_d:str, wav_dir:str)-> None:
         os.mkdir(wav_dir)
         for file in file_list:
             ff = ffmpy.FFmpeg(inputs={input_d + "/" +file: None}, 
-                                outputs={file[:-4] + ".wav": None})
+                                outputs={re.sub(r"\s+", "", file[:-4]) + ".wav": None})
             ff.run()
 
         files_to_move = glob.glob("*.wav")
@@ -93,8 +94,6 @@ def diratzation(file_list: list, input_d: str, rttm_dir: str) -> None:
         pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization@2.1",
                                             use_auth_token=config.auth_token)
 
-        
-        
         full_files = [input_d + "/" + filename for filename in file_list]
         diar_func = lambda x: pipeline(x)
         diarizations = [diar_func(file) for file in full_files]

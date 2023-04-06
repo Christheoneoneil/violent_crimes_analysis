@@ -39,53 +39,49 @@ def get_segments(rttm_dir: str) -> dict:
     return speaker_segs_dict
 
 
-def get_transcripts(wav_list: list, wav_dir: str, trans_dir: list) -> None:
+def get_transcripts(segs: dict, wav_dir: str, trans_dir: list) -> None:
     """
     use whsiper gather and store transcripts 
 
     Params:
-    wav_list: list of wav files 
+    seg: dictionary conatining timestamped diarizations
     wav_dir: directory to read in wav files
     trans_dir: transcript directry to write to
 
     Returns:
     None
     """
+
+    
+    from pydub import AudioSegment
     import whisper
     try:
         os.mkdir(trans_dir)
         model = whisper.load_model("base")
-        res_func = lambda x: model.transcribe(x, word_timestamps=False)
-       
-        for file in wav_list:
-            result = res_func(os.path.join(wav_dir, file))
-            with open(os.path.join(trans_dir, re.sub(r"\s+", "", file[:-5]) + ".json"), "w", encoding="utf-8") as file:
-                print(file)
-                segments = result["segments"]
-                json.dump(segments, file, indent=4)
+
+        res_func = lambda x: model.transcribe(x, 
+                                              word_timestamps=False)
+        
+        for key, val in segs.items():
+            try:
+                os.mkdir(os.path.join(wav_dir, key))
+                audio = AudioSegment.from_wav(os.path.join(wav_dir, key) + c.wav_suff)
+                
+                for segments in val:
+                    chunk = audio[segments[0][0]:segments[0][1]]
+                    chunk.export(os.path.join(wav_dir, key, str(segments)) + c.wav_suff, 
+                                 format="wav")
+            
+            except Exception as e: 
+                tagged_trans = [(segments[1], 
+                                 res_func(os.path.join(wav_dir, key, str(segments)) + c.wav_suff)["text"]) for segments in val]
+            
+            df = pd.DataFrame(tagged_trans, 
+                              columns=[c.spearker_info_start, c.text_col])
+            df.to_csv(os.path.join(trans_dir, 
+                                   key) + c.csv_suff)
+         
     except Exception as e:
         print(e)
 
 
-def read_in_trans(file_list: list, trans_dir: str) -> pd.DataFrame:
-    """
-    takes in list of json files and 
-    returns a merged and tagged data
-    frame consisting of all transcripts 
-
-    Params:
-    file_list: list of json files
-
-    Returns:
-    pandas data frame of transcripts
-    """
-
-    df_list = [pd.read_json(trans_dir + "/" + filename, orient="records") \
-               for filename in file_list]
-    
-    for title, df in zip(file_list, df_list): df["vid_title"] = title[:-5]
-
-    df = pd.concat(df_list) 
-
-    return df
-    
