@@ -1,0 +1,5 @@
+rttm_split_char = " 1 "
+rttm_end_of_req_info = "\n"
+info_needed_char = "_"
+noise_char = "<NA>"
+spearker_info_start = "SPEAKER"

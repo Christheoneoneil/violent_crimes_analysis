@@ -3,6 +3,7 @@ import swifter
 import json
 import os
 import re
+import c
 
 
 def get_segments(rttm_dir: str) -> dict:
@@ -14,23 +15,20 @@ def get_segments(rttm_dir: str) -> dict:
     rttm_dir: directory containing rttm files
 
     Returns:
-    None
+    Dictionary of segments
     """
 
-    rttm_split_char = " 1 "
-    rttm_end_of_req_info = "\n"
-    noise_char = "<NA>"
-    spearker_info_start = "SPEAKER"
-    speaker_segs_dict = {}
     
+    speaker_segs_dict = {}
+
     for file in os.listdir(rttm_dir):
         with open(os.path.join(rttm_dir, file), "r") as f:
-            filelines = f.read().split(rttm_split_char)
-            segments = [seg.split(rttm_end_of_req_info)[0] for seg in filelines if "_" in seg]
-            segments_rem_na = [seg.replace(noise_char, "") for seg in segments]
+            filelines = f.read().split(c.rttm_split_char)
+            segments = [seg.split(c.rttm_end_of_req_info)[0] for seg in filelines if c.info_needed_char in seg]
+            segments_rem_na = [seg.replace(c.noise_char, "") for seg in segments]
             
             get_floats = lambda x: re.findall(r"\d+\.\d+", x)
-            get_substring = lambda x: x[x.index(spearker_info_start):].replace(" ", "")
+            get_substring = lambda x: x[x.index(c.spearker_info_start):].replace(" ", "")
             
             secs_to_mil = lambda x: float(x)*1000
             to_stamps = lambda x: [x[0], x[0] + x[1]]
