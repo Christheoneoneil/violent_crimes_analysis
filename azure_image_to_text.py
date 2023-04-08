@@ -1,3 +1,4 @@
+
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
 #from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
@@ -15,13 +16,15 @@ computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredenti
 
 
 
-def extract_text(the_pdf_path, the_txt_path):
 
-    '''Given a pdf containing handwritten and/or typed text, this function 
+
+def extract_text(file_path):
+
+    '''Given a pdf of handwritten text, this function 
     outputs the identified text to a .txt file'''
 
     # Convert PDF to image using pdf2image library
-    pages = convert_from_path(the_pdf_path, 300)
+    pages = convert_from_path('shooters_words_images/' + file_path + '.pdf', 300)
     for i, page in enumerate(pages):
         # Save temporary image file
         img_path = f"temp_image_{i}.jpg"
@@ -48,7 +51,7 @@ def extract_text(the_pdf_path, the_txt_path):
         time.sleep(10)
 
     # Print results, line by line and store it in a .txt file
-    with open(the_txt_path, 'w') as f:
+    with open('shooters_words_text/' + file_path + '.txt', 'w') as f:
         if read_result.status == OperationStatusCodes.succeeded:
             for text_result in read_result.analyze_result.read_results:
                 for line in text_result.lines:
@@ -64,6 +67,7 @@ def extract_text(the_pdf_path, the_txt_path):
 
 
 # example of function use
-the_pdf_path = 'shooters_words_images/castillo_journal.pdf'
-the_txt_path = 'shooters_words_text/castillo_journal.txt'
-extract_text(the_pdf_path, the_txt_path)
+
+pdf_path_list = ['castillo_journal', 'Atchison_note_1']
+for path in pdf_path_list:
+    extract_text(path)
