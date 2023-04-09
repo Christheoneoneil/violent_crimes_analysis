@@ -56,7 +56,7 @@ def get_transcripts(segs: dict, wav_dir: str, trans_dir: list) -> None:
     import whisper
     try:
         os.mkdir(trans_dir)
-        model = whisper.load_model("base")
+        model = whisper.load_model("medium.en")
 
         res_func = lambda x: model.transcribe(x, 
                                               word_timestamps=False)
