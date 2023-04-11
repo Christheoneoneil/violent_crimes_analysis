@@ -6,7 +6,7 @@ import c
 import shutil
 
 
-def get_segments(rttm_dir: str) -> dict:
+def get_segments(rttm_dir:str) -> dict:
     """
     gets the segments of the wavs files for
     diffeent speakers and stores them
@@ -15,7 +15,7 @@ def get_segments(rttm_dir: str) -> dict:
     rttm_dir: directory containing rttm files
 
     Returns:
-    Dictionary of segments
+    Dictionary of diarized audio segments
     """
 
 
@@ -39,7 +39,7 @@ def get_segments(rttm_dir: str) -> dict:
     return speaker_segs_dict
 
 
-def get_transcripts(segs: dict, wav_dir: str, trans_dir: list) -> None:
+def get_transcripts(segs:dict, wav_dir:str, trans_dir:list) -> None:
     """
     use whsiper gather and store transcripts 
 

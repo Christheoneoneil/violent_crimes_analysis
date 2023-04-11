@@ -23,7 +23,7 @@ def read_file(filename:str) -> pd.DataFrame:
     return pd.read_csv(filename) 
 
 
-def scrape_audio(scrape_links: pd.DataFrame, link_col: str, output_d: str) -> None:
+def scrape_audio(scrape_links:pd.DataFrame, link_col:str, output_d:str) -> None:
     """
     scrapes youtbube audio with the help of youtube dl
     
@@ -48,7 +48,7 @@ def scrape_audio(scrape_links: pd.DataFrame, link_col: str, output_d: str) -> No
         df["audio"].swifter.apply(download_audio)
     
 
-def file_conversion(file_list: list, input_d:str, wav_dir:str)-> None:
+def file_conversion(file_list:list, input_d:str, wav_dir:str)-> None:
     """
     converts audiofiles to wav files 
 
@@ -74,7 +74,7 @@ def file_conversion(file_list: list, input_d:str, wav_dir:str)-> None:
     except OSError:
         pass
 
-def diratzation(file_list: list, input_d: str, rttm_dir: str) -> None:
+def diratzation(file_list:list, input_d:str, rttm_dir:str) -> None:
     """
     extracts subtitles and tagged speakers from
     provided audio files
