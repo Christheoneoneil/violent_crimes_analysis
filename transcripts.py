@@ -3,6 +3,7 @@ import swifter
 import os
 import re
 import c
+import shutil
 
 
 def get_segments(rttm_dir: str) -> dict:
@@ -70,17 +71,19 @@ def get_transcripts(segs: dict, wav_dir: str, trans_dir: list) -> None:
                     chunk = audio[segments[0][0]:segments[0][1]]
                     chunk.export(os.path.join(wav_dir, key, str(segments)) + c.wav_suff, 
                                  format="wav")
-            
+                
             except Exception as e: 
-                tagged_trans = [(segments[1], 
+                pass
+                
+            tagged_trans = [(segments[1], 
                                  res_func(os.path.join(wav_dir, key, str(segments)) + c.wav_suff)["text"]) for segments in val]
             
             df = pd.DataFrame(tagged_trans, 
                               columns=[c.spearker_info_start, c.text_col])
             df.to_csv(os.path.join(trans_dir, 
                                    key) + c.csv_suff)
-         
+    
     except Exception as e:
         print(e)
-
+    shutil.rmtree(wav_dir)
 
