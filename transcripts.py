@@ -1,86 +1,89 @@
 import pandas as pd
 import swifter
-import json
 import os
+import re
+import c
+import shutil
 
 
-def get_video_id(vid_links: pd.DataFrame, link_col="Link") -> pd.DataFrame:
+def get_segments(rttm_dir:str) -> dict:
     """
-    parses video id from link 
+    gets the segments of the wavs files for
+    diffeent speakers and stores them
 
     Params:
-    vid_links:
-    link_col:
+    rttm_dir: directory containing rttm files
 
     Returns:
-    list of link ids
+    Dictionary of diarized audio segments
     """
-    
-    from urllib.parse import urlparse
-    
-    df = vid_links.copy()
-    df["url_dat"] = df[link_col].swifter.apply(urlparse)
-    qurery_func = lambda x: x.query
-    df["query"] = df["url_dat"].swifter.apply(qurery_func)
-    get_id_func = lambda x: x[2:]
-    df["vid_id"] = df["query"].swifter.apply(get_id_func)
-    
-    return list(df["vid_id"])
 
 
-def get_transcripts(vid_ids: list, trans_dir: str, titles: list) -> None:
+    speaker_segs_dict = {}
+
+    for file in os.listdir(rttm_dir):
+        with open(os.path.join(rttm_dir, file), "r") as f:
+            filelines = f.read().split(c.rttm_split_char)
+            segments = [seg.split(c.rttm_end_of_req_info)[0] for seg in filelines if c.info_needed_char in seg]
+            segments_rem_na = [seg.replace(c.noise_char, "") for seg in segments]
+            
+            get_floats = lambda x: re.findall(r"\d+\.\d+", x)
+            get_substring = lambda x: x[x.index(c.spearker_info_start):].replace(" ", "")
+            
+            secs_to_mil = lambda x: float(x)*1000
+            to_stamps = lambda x: [x[0], x[0] + x[1]]
+            segments_cleaned = [[to_stamps(list(map(secs_to_mil, get_floats(seg)))), 
+                                 get_substring(seg)] for seg in segments_rem_na]
+        speaker_segs_dict[file[:-5]] = segments_cleaned
+    
+    return speaker_segs_dict
+
+
+def get_transcripts(segs:dict, wav_dir:str, trans_dir:list) -> None:
     """
-    use youtube api gather and store transcripts 
+    use whsiper gather and store transcripts 
 
     Params:
-    vid_ids: list of video ids
-    trans_dir: directory to store transcripts
-    titles: list of video titles
+    segs: dictionary conatining timestamped diarizations
+    wav_dir: directory to read in wav files
+    trans_dir: transcript directry to write to
 
     Returns:
     None
     """
 
+    
+    from pydub import AudioSegment
+    import whisper
     try:
         os.mkdir(trans_dir)
-        from youtube_transcript_api import YouTubeTranscriptApi
-        index = 0
-        get_vid_funct = lambda x: YouTubeTranscriptApi.get_transcript(str(x))
-        for id in vid_ids:
+        model = whisper.load_model("medium.en")
+
+        res_func = lambda x: model.transcribe(x, 
+                                              word_timestamps=False)
+        
+        for key, val in segs.items():
             try:
-                transcript = get_vid_funct(id)
-                title = titles[index]
-                print(id)
-                print(title)
-                with open(trans_dir + "/" + title + ".json", "w") as final:
-                    json.dump(transcript, final)
+                os.mkdir(os.path.join(wav_dir, key))
+                audio = AudioSegment.from_wav(os.path.join(wav_dir, key) + c.wav_suff)
                 
-            except Exception as e:
-                print(e)
+                for segments in val:
+                    chunk = audio[segments[0][0]:segments[0][1]]
+                    chunk.export(os.path.join(wav_dir, key, str(segments)) + c.wav_suff, 
+                                 format="wav")
                 
-            index += 1
-    except OSError:
-        pass
-
-def read_in_trans(file_list: list, trans_dir: str) -> pd.DataFrame:
-    """
-    takes in list of json files and 
-    returns a merged and tagged data
-    frame consisting of all transcripts 
-
-    Params:
-    file_list: list of json files
-
-    Returns:
-    pandas data frame of transcripts
-    """
-
-    df_list = [pd.read_json(trans_dir + "/" + filename, orient="records") \
-               for filename in file_list]
+            except Exception as e: 
+                pass
+                
+            tagged_trans = [(segments[1], 
+                                 res_func(os.path.join(wav_dir, key, str(segments)) + c.wav_suff)["text"]) for segments in val]
+            
+            df = pd.DataFrame(tagged_trans, 
+                              columns=[c.spearker_info_start, c.text_col])
+            df.to_csv(os.path.join(trans_dir, 
+                                   key) + c.csv_suff)
     
-    for title, df in zip(file_list, df_list): df["vid_title"] = title[:-5]
+    except Exception as e:
+        print(e)
+    shutil.rmtree(wav_dir)
 
-    df = pd.concat(df_list) 
-
-    return df
-    

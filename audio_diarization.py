@@ -5,6 +5,7 @@ import config
 import ffmpy 
 import glob
 import shutil
+import re
 
 
 def read_file(filename:str) -> pd.DataFrame:
@@ -22,7 +23,7 @@ def read_file(filename:str) -> pd.DataFrame:
     return pd.read_csv(filename) 
 
 
-def scrape_audio(scrape_links: pd.DataFrame, link_col: str, output_d: str) -> None:
+def scrape_audio(scrape_links:pd.DataFrame, link_col:str, output_d:str) -> None:
     """
     scrapes youtbube audio with the help of youtube dl
     
@@ -47,7 +48,7 @@ def scrape_audio(scrape_links: pd.DataFrame, link_col: str, output_d: str) -> No
         df["audio"].swifter.apply(download_audio)
     
 
-def file_conversion(file_list: list, input_d:str, wav_dir:str)-> None:
+def file_conversion(file_list:list, input_d:str, wav_dir:str)-> None:
     """
     converts audiofiles to wav files 
 
@@ -62,7 +63,7 @@ def file_conversion(file_list: list, input_d:str, wav_dir:str)-> None:
         os.mkdir(wav_dir)
         for file in file_list:
             ff = ffmpy.FFmpeg(inputs={input_d + "/" +file: None}, 
-                                outputs={file[:-4] + ".wav": None})
+                                outputs={re.sub(r"\s+", "", file[:-4]) + ".wav": None})
             ff.run()
 
         files_to_move = glob.glob("*.wav")
@@ -73,7 +74,7 @@ def file_conversion(file_list: list, input_d:str, wav_dir:str)-> None:
     except OSError:
         pass
 
-def diratzation(file_list: list, input_d: str, rttm_dir: str) -> None:
+def diratzation(file_list:list, input_d:str, rttm_dir:str) -> None:
     """
     extracts subtitles and tagged speakers from
     provided audio files
@@ -93,13 +94,11 @@ def diratzation(file_list: list, input_d: str, rttm_dir: str) -> None:
         pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization@2.1",
                                             use_auth_token=config.auth_token)
 
-        
-        
         full_files = [input_d + "/" + filename for filename in file_list]
         diar_func = lambda x: pipeline(x)
         diarizations = [diar_func(file) for file in full_files]
         
-        rttm_files = [rttm_dir + "/" + filename[:-4] + ".rttm" for filename in file_list]
+        rttm_files = [rttm_dir + "/" + re.sub(r"\s+", "", filename[:-4]) + ".rttm" for filename in file_list]
         
         for file, diar in zip(rttm_files, diarizations):
             with open(file, "w") as rttm:
