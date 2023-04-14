@@ -1,6 +1,7 @@
 import pandas as pd
 import c
 import os
+import matplotlib.pyplot as plt
 
 
 def get_criminal_lines(speaker_df: pd.DataFrame, trans_dir: str) -> pd.DataFrame:
@@ -28,3 +29,8 @@ def get_criminal_lines(speaker_df: pd.DataFrame, trans_dir: str) -> pd.DataFrame
     
     return pd.concat(criminal_dfs)
 
+
+def graph_power_danger(criminal_df:pd.DataFrame) -> None:
+    """
+    uses
+    """
