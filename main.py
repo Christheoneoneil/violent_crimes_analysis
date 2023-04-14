@@ -1,7 +1,7 @@
 import os
 from audio_diarization import read_file, scrape_audio, file_conversion, diratzation 
 from transcripts import get_transcripts, get_segments
-from trans_analysis import get_criminal_lines
+from trans_analysis import get_criminal_lines, graph_power_danger
 import c
 
 
@@ -37,5 +37,6 @@ def main()-> None:
     
     tagged_df = get_criminal_lines(speaker_df=speakers, trans_dir=c.transcripts_dir)
     
+    graph_power_danger(tagged_df)
 if __name__ == "__main__":
     main()

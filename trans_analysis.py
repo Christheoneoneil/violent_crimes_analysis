@@ -2,6 +2,7 @@ import pandas as pd
 import c
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def get_criminal_lines(speaker_df: pd.DataFrame, trans_dir: str) -> pd.DataFrame:
@@ -32,5 +33,20 @@ def get_criminal_lines(speaker_df: pd.DataFrame, trans_dir: str) -> pd.DataFrame
 
 def graph_power_danger(criminal_df:pd.DataFrame) -> None:
     """
-    uses
+    uses ousiometrics to graph pwower and danger curves
+
+    Params:
+    criminal_df: data frame of all criminal transcripts
+
+    Returns:
+    None
     """
+
+    criminal_df[c.words_col] = criminal_df[c.text_col].str.split()
+    words_expanded = criminal_df.explode(c.words_col) 
+    words_expanded[c.words_col] = words_expanded[c.words_col].str.lower()
+
+    power_danger = pd.read_table("ousiometry_data_augmented.tsv", usecols=[c.ousiowords, c.ousiopower, c.ousiodanger])
+    power_func = lambda x: power_danger[power_danger[c.ousiowords] == x][c.ousiodanger]
+    danger_func = lambda x: power_danger[power_danger["word"] == x]["danger"]
+    # @TODO: Issue in above mapping must fix
