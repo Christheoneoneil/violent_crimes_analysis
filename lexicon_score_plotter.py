@@ -77,6 +77,18 @@ def get_happiness_scores(ngrams, hedon, hap_vars): # hap_vars are hap_vars[0] = 
    
     return scores
 
+def Get_Token_Scores(tokens, df_lexicon_scores, score_type):
+    # create a dataframe from the tokens list
+    df_tokens = pd.DataFrame({'word': tokens})
+    
+    # merge the tokens dataframe with df_lexicon_scores 
+    df_scores = pd.merge(df_tokens, df_lexicon_scores[['word', score_type]], on='word', how='left')   # score_type can be power, danger, etc...
+    
+    # return the danger scores as a list
+    return df_scores['danger'].tolist()
+
+
+
 def calculate_averages(raw_scores,window_size):
     raw_series = pd.Series(raw_scores)
     windows = raw_series.rolling(window_size)
@@ -125,11 +137,10 @@ def word_shifts(type2freq_1: dict, type2freq_2: dict, ref_avg: float, title: lis
 
 
 # read in lexicon
-hap_vars = ['Word', 'Danger/Power Score']
-# hedonometer = pd.read_csv('labMT_lexicon.csv', names=hap_vars)
-hedonometer = pd.read_table('ousiometry_data_augmented.tsv')
 
-print(hedonometer)
+df_lexicon_scores = pd.read_table('ousiometry_data_augmented.tsv')
+
+
 
 
 
@@ -145,19 +156,63 @@ print(file_names)
 
 
 
+def Create_Score_Dictionary(score_type):
+    # loop over the file names and apply the function to each file
+    for file_name in file_names:
+        
+        # apply the function to the file contents
+        tokens_list = Get_Tokens_List(folder_path + '/' + file_name)
 
-# loop over the file names and apply the function to each file
-for file_name in file_names:
-    
-    # apply the function to the file contents
-    tokens_list = Get_Tokens_List(folder_path + '/' + file_name)
-    
-    # store the output in the results dictionary with the file name as the key
-    name = file_name.split('.')[0]
-    results_dict[name] = tokens_list
+        '''We could probably just add the following line: Get_Token_Scores(tokens_list, df_lexicon_scores)'''
+        tokens_list = Get_Token_Scores(tokens_list, df_lexicon_scores, score_type)
 
-# print out the results dictionary
-print(results_dict)
+
+        # store the output in the results dictionary with the file name as the key
+        criminal_name = file_name.split('.')[0]
+        results_dict[criminal_name] = tokens_list
+
+    # print out the results dictionary
+    print(results_dict)
+    
+    return results_dict
+
+
+
+
+
+for name, score_list in results_dict.items():
+    '''Insert function for plotting the score_list'''
+
+list(results_dict.values())
+
+
+
+# get danger scores for the first criminal
+a = 1
+b = 4.5
+c = .5
+
+window_sizes = [round(10**i) for i in np.arange(1, 4.5, .5)] 
+rolling_averages = [calculate_averages(happiness_scores, window_size) for window_size in window_sizes] 
+t_list = ["Original 6 Star Wars Movies (Episode Order 1-6), T = " + str(window_size) + ", z = " + str(round(np.log10(window_size)*2)/2) for window_size in window_sizes]
+plotter(rolling_averages, t_list, 7, 1)
+plt.savefig("unadjusted_happiness.png")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
