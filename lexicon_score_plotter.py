@@ -173,17 +173,25 @@ def Create_Score_Dictionary(score_type):
 
     # print out the results dictionary
     print(results_dict)
-    
+
     return results_dict
 
 
+danger_dict = Create_Score_Dictionary('danger')
+
+danger_scores1 = list(danger_dict.values())[1]                                  # this is for the first criminal in our list of criminal_names
+danger_names1 = list(danger_dict.values())[0]
+
+'''Now, let's use these lists in order to create a danger plot.'''
 
 
 
-for name, score_list in results_dict.items():
-    '''Insert function for plotting the score_list'''
 
-list(results_dict.values())
+
+
+# for name, score_list in danger_dict.items():
+#     '''Insert function for plotting the score_list'''
+# list(results_dict.values())
 
 
 
@@ -193,8 +201,8 @@ b = 4.5
 c = .5
 
 window_sizes = [round(10**i) for i in np.arange(1, 4.5, .5)] 
-rolling_averages = [calculate_averages(happiness_scores, window_size) for window_size in window_sizes] 
-t_list = ["Original 6 Star Wars Movies (Episode Order 1-6), T = " + str(window_size) + ", z = " + str(round(np.log10(window_size)*2)/2) for window_size in window_sizes]
+rolling_averages = [calculate_averages(danger_scores1, window_size) for window_size in window_sizes] 
+t_list = ["Insert Criminal Name Here, T = " + str(window_size) + ", z = " + str(round(np.log10(window_size)*2)/2) for window_size in window_sizes]
 plotter(rolling_averages, t_list, 7, 1)
 plt.savefig("unadjusted_happiness.png")
 
