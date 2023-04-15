@@ -3,7 +3,7 @@ import c
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-
+import re
 
 def get_criminal_lines(speaker_df: pd.DataFrame, trans_dir: str) -> pd.DataFrame:
     """
@@ -44,9 +44,17 @@ def graph_power_danger(criminal_df:pd.DataFrame) -> None:
 
     criminal_df[c.words_col] = criminal_df[c.text_col].str.split()
     words_expanded = criminal_df.explode(c.words_col) 
+    words_expanded[c.words_col] = words_expanded[c.words_col].map(str)
     words_expanded[c.words_col] = words_expanded[c.words_col].str.lower()
-
+    
+    words_expanded[c.words_col] = [re.sub(r'[^\w\s]', '', word) for word in list(words_expanded[c.words_col])]
+    
     power_danger = pd.read_table("ousiometry_data_augmented.tsv", usecols=[c.ousiowords, c.ousiopower, c.ousiodanger])
-    power_func = lambda x: power_danger[power_danger[c.ousiowords] == x][c.ousiodanger]
-    danger_func = lambda x: power_danger[power_danger["word"] == x]["danger"]
-    # @TODO: Issue in above mapping must fix
+    word_in_lex = lambda x: True if x in list(power_danger[c.ousiowords]) else False
+    power_func = lambda x, y: list(power_danger[(power_danger == x).any(axis=1)].to_dict()[y].values()) if word_in_lex(x) else np.nan
+    
+    words_expanded[c.ousiopower] = [power_func(word, c.ousiopower) for word in list(words_expanded[c.words_col])]
+    words_expanded[c.ousiodanger] = [power_func(word, c.ousiodanger) for word in list(words_expanded[c.words_col])]
+
+    
+    # @TODO: Mapping now fixed, must plot power and danger curves for each video.

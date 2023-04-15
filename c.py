@@ -18,3 +18,5 @@ words_col = "words"
 ousiowords = "word"
 ousiopower = "power"
 ousiodanger = "danger"
+power_index = 1
+danger_index = 2
