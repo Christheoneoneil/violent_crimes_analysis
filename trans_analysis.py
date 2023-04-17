@@ -4,6 +4,8 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import re
+import seaborn as sns
+
 
 def get_criminal_lines(speaker_df: pd.DataFrame, trans_dir: str) -> pd.DataFrame:
     """
@@ -58,16 +60,22 @@ def graph_power_danger(criminal_df:pd.DataFrame) -> None:
     words_expanded[c.ousiopower] = [power_func(word, c.ousiopower) for word in list(words_expanded[c.words_col])]
     words_expanded[c.ousiodanger] = [power_func(word, c.ousiodanger) for word in list(words_expanded[c.words_col])]
     words_expanded.dropna(inplace=True)
-    
-    pd.pivot_table(words_expanded.reset_index(), 
-                   index=c.words_col, 
-                   columns=c.crim_col, 
-                   values=c.ousiopower).plot(subplots=True, 
-                                             figsize=(11, 9),
-                                             use_index=False,
-                                             sharex=False,
-                                             title=c.ousiopower + " curvers per trancsript", 
-                                             layout=(3,3))
-    plt.show()
+
+    crim_list = list(words_expanded[c.crim_col].unique())
+    ncols = c.ncols
+    nrows = len(crim_list) // ncols + (len(crim_list) % ncols > 0)
+    for ousio in [c.ousiopower, c.ousiodanger]:
+        df = words_expanded[[c.crim_col, ousio]]
+        plt.figure(figsize=(15,12))
+        plt.subplots_adjust(hspace=0.2)
+        plt.suptitle(ousio + " curves per transctipt")
+        for n, crim in enumerate(crim_list):
+            ax = plt.subplot(nrows, ncols, n+1)
+            df[df[c.crim_col] == crim].plot(ax=ax)
+            ax.set_title(crim)
+            ax.get_legend().remove()
+            sns.despine()
+        
+        plt.savefig(ousio)
   
     # @TODO: Mapping now fixed, must plot power and danger curves for each video.
