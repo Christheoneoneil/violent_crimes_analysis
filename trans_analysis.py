@@ -23,8 +23,10 @@ def get_criminal_lines(speaker_df: pd.DataFrame, trans_dir: str) -> pd.DataFrame
     """
 
     vid_titles = list(speaker_df[c.title_col_speakers])
+    names = list(speaker_df[c.crim_col])
     trans_dfs = [pd.read_csv(os.path.join(trans_dir, title + c.csv_suff)) for title in vid_titles]
     for title, df in zip(vid_titles, trans_dfs): df.insert(1, c.title_col_speakers, title)
+    for name, df in zip(names, trans_dfs): df.insert(1, c.crim_col, name)
     speakers = list(speaker_df[c.speaker_col])
     criminal_dfs = [df[df[c.speaker_col.upper()] == crim] for df,crim in zip(trans_dfs, speakers)] 
     
@@ -51,10 +53,21 @@ def graph_power_danger(criminal_df:pd.DataFrame) -> None:
     
     power_danger = pd.read_table("ousiometry_data_augmented.tsv", usecols=[c.ousiowords, c.ousiopower, c.ousiodanger])
     word_in_lex = lambda x: True if x in list(power_danger[c.ousiowords]) else False
-    power_func = lambda x, y: list(power_danger[(power_danger == x).any(axis=1)].to_dict()[y].values()) if word_in_lex(x) else np.nan
+    power_func = lambda x, y: list(power_danger[(power_danger == x).any(axis=1)].to_dict()[y].values())[0] if word_in_lex(x) else np.nan
     
     words_expanded[c.ousiopower] = [power_func(word, c.ousiopower) for word in list(words_expanded[c.words_col])]
     words_expanded[c.ousiodanger] = [power_func(word, c.ousiodanger) for word in list(words_expanded[c.words_col])]
-
+    words_expanded.dropna(inplace=True)
     
+    pd.pivot_table(words_expanded.reset_index(), 
+                   index=c.words_col, 
+                   columns=c.crim_col, 
+                   values=c.ousiopower).plot(subplots=True, 
+                                             figsize=(11, 9),
+                                             use_index=False,
+                                             sharex=False,
+                                             title=c.ousiopower + " curvers per trancsript", 
+                                             layout=(3,3))
+    plt.show()
+  
     # @TODO: Mapping now fixed, must plot power and danger curves for each video.

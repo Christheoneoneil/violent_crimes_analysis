@@ -38,5 +38,7 @@ def main()-> None:
     tagged_df = get_criminal_lines(speaker_df=speakers, trans_dir=c.transcripts_dir)
     
     graph_power_danger(tagged_df)
+
+    
 if __name__ == "__main__":
     main()

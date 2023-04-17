@@ -20,3 +20,4 @@ ousiopower = "power"
 ousiodanger = "danger"
 power_index = 1
 danger_index = 2
+crim_col = "name"
