@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re
 import seaborn as sns
+from plotter import plotter
 
 
 def get_criminal_lines(speaker_df: pd.DataFrame, trans_dir: str) -> pd.DataFrame:
@@ -63,21 +64,10 @@ def graph_power_danger(criminal_df:pd.DataFrame) -> None:
 
     crim_list = list(words_expanded[c.crim_col].unique())
     ncols = c.ncols
-    nrows = len(crim_list) // ncols + (len(crim_list) % ncols > 0)
-    for ousio in [c.ousiopower, c.ousiodanger]:
-        df = words_expanded[[c.crim_col, ousio]]
-        plt.figure(figsize=(15,12))
-        plt.subplots_adjust(hspace=0.2)
-        plt.suptitle(ousio + " curves per transctipt")
-        for n, crim in enumerate(crim_list):
-            ax = plt.subplot(nrows, ncols, n+1)
-            df[df[c.crim_col] == crim].plot(ax=ax)
-            ax.set_title(crim)
-            ax.get_legend().remove()
-            sns.despine()
-        
-        plt.savefig(ousio)
+    params = [c.ousiopower, c.ousiodanger]
+    plotter(desired_params=params, ref_col=c.crim_col, df=words_expanded, 
+            tickers=crim_list, ncols=ncols, title=" curves per transcript")
+    
     words_expanded.drop(columns=[c.text_col], inplace=True)
     words_expanded.to_csv(c.final_df)
   
-    # @TODO: Mapping now fixed, must plot power and danger curves for each video.
