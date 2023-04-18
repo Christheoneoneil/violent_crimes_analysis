@@ -54,7 +54,7 @@ def graph_power_danger(criminal_df:pd.DataFrame) -> None:
     
     words_expanded[c.words_col] = [re.sub(r'[^\w\s]', '', word) for word in list(words_expanded[c.words_col])]
     
-    power_danger = pd.read_table("ousiometry_data_augmented.tsv", usecols=[c.ousiowords, c.ousiopower, c.ousiodanger])
+    power_danger = pd.read_table(c.ousio_dat, usecols=[c.ousiowords, c.ousiopower, c.ousiodanger])
     word_in_lex = lambda x: True if x in list(power_danger[c.ousiowords]) else False
     power_func = lambda x, y: list(power_danger[(power_danger == x).any(axis=1)].to_dict()[y].values())[0] if word_in_lex(x) else np.nan
     
@@ -69,5 +69,13 @@ def graph_power_danger(criminal_df:pd.DataFrame) -> None:
             tickers=crim_list, ncols=ncols, title=" curves per transcript")
     
     words_expanded.drop(columns=[c.text_col], inplace=True)
+    non_sparse = words_expanded.set_index(c.crim_col).drop(labels=c.sparse_cols)
+    non_sparse.reset_index(inplace=True)
+    for param in params: non_sparse[param + " rolling avg"] = non_sparse.groupby(c.crim_col)[param].transform(lambda x: x.rolling(c.window_size).mean())
+    rolling_params = [param + " rolling avg" for param in params]
+
+    plotter(desired_params=rolling_params, ref_col=c.crim_col, df=non_sparse, 
+            tickers=list(non_sparse[c.crim_col].unique()), ncols=c.ncols, title="")
+    
     words_expanded.to_csv(c.final_df)
   
