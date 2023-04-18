@@ -77,5 +77,7 @@ def graph_power_danger(criminal_df:pd.DataFrame) -> None:
             sns.despine()
         
         plt.savefig(ousio)
+    words_expanded.drop(columns=[c.text_col], inplace=True)
+    words_expanded.to_csv(c.final_df)
   
     # @TODO: Mapping now fixed, must plot power and danger curves for each video.

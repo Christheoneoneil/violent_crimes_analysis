@@ -22,3 +22,4 @@ power_index = 1
 danger_index = 2
 crim_col = "name"
 ncols = 3
+final_df = "final_words.csv"
