@@ -26,3 +26,4 @@ final_df = "final_words.csv"
 sparse_rows = ["Alvaro Castillo", "Kenneth Bartley", "Andy Williams", "James Holmes"]
 ousio_dat = "ousiometry_data_augmented.tsv"
 window_size = 50
+colors = ["darkorchid", "crimson"]

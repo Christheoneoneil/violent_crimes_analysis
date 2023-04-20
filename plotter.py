@@ -31,6 +31,7 @@ def plotter(desired_params:list, ref_col:str, df:pd.DataFrame, tickers:list, nco
                 ax = plt.subplot(nrows, ncols, n+1)
                 sub_df[sub_df[ref_col] == tick].plot(ax=ax, color=color, legend=False)
                 ax.axhline(y=0, c="lightsteelblue", linestyle="--")
+                ax.get_xaxis().set_visible(False)
                 ax.set_title(tick)
                 sns.despine()
             

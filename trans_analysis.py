@@ -65,9 +65,10 @@ def graph_power_danger(criminal_df:pd.DataFrame) -> None:
     crim_list = list(words_expanded[c.crim_col].unique())
     ncols = c.ncols
     params = [c.ousiopower, c.ousiodanger]
+    
     plotter(desired_params=params, ref_col=c.crim_col, df=words_expanded, 
             tickers=crim_list, ncols=ncols, title=" curves per transcript",
-            colors=["purple", "yellow"])
+            colors=c.colors)
     
     words_expanded.drop(columns=[c.text_col], inplace=True)
     non_sparse = words_expanded.set_index(c.crim_col).drop(labels=c.sparse_rows)
@@ -77,7 +78,7 @@ def graph_power_danger(criminal_df:pd.DataFrame) -> None:
 
     plotter(desired_params=rolling_params, ref_col=c.crim_col, df=non_sparse, 
             tickers=list(non_sparse[c.crim_col].unique()), ncols=c.ncols, title=" per transcript",
-            colors=["purple", "yellow"])
+            colors=c.colors)
     
     words_expanded.to_csv(c.final_df)
   
