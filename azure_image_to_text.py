@@ -1,73 +1,88 @@
-
-from azure.cognitiveservices.vision.computervision import ComputerVisionClient
-from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
-#from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
-from msrest.authentication import CognitiveServicesCredentials
-import azure_keys as keys
-import time
+import os
+import cv2
+import pytesseract
+from pdfminer.high_level import extract_text
 from pdf2image import convert_from_path
 
+def extract_handwritten_text(pdf_path, output_file):
+    # extract text
+    text = extract_text(pdf_path)
 
+    # check if PDF contains handwritten text
+    if 'handwritten' not in text.lower():
+        print('No handwritten text found in PDF.')
+        return
 
-# Define key, endpoint, and client
-subscription_key = keys.key1
-endpoint = keys.endpoint
-computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
-
-
-
-
-
-def extract_text(file_path):
-
-    '''Given a pdf of handwritten text, this function 
-    outputs the identified text to a .txt file'''
-
-    # Convert PDF to image using pdf2image library
-    pages = convert_from_path('shooters_words_images/' + file_path + '.pdf', 300)
+    # save separate pages of pdf as separate images
+    pages = convert_from_path(pdf_path, dpi=300)
+    handwritten_text = []
     for i, page in enumerate(pages):
-        # Save temporary image file
-        img_path = f"temp_image_{i}.jpg"
-        page.save(img_path)
+        # convert page to grayscale and save as temporary image file
+        page_path = f'temp_page_{i}.png'
+        page.save(page_path, 'PNG')
+        img = cv2.imread(page_path, cv2.IMREAD_GRAYSCALE)
 
-    print("===== Read File - local =====")
+        # identify handwritten text
+        _, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+        dilate = cv2.dilate(thresh, kernel, iterations=5)
+        contours, _ = cv2.findContours(dilate, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours:
+            x,y,w,h = cv2.boundingRect(cnt)
+            roi = img[y:y+h, x:x+w]
+            text = pytesseract.image_to_string(roi)
 
-    # Open the image
-    read_image = open(img_path, "rb")
+            # append handwritten text to list
+            handwritten_text.append(text)
 
-    # Call API with image and raw response (allows you to get the operation location)
-    read_response = computervision_client.read_in_stream(read_image, raw=True)
-    # Get the operation location (URL with ID as last appendage)
-    read_operation_location = read_response.headers["Operation-Location"]
-    # Take the ID off and use to get results
-    operation_id = read_operation_location.split("/")[-1]
+        # delete temporary image file
+        os.remove(page_path)
 
-    # Call the "GET" API and wait for the retrieval of the results
-    while True:
-        read_result = computervision_client.get_read_result(operation_id)
-        if read_result.status.lower () not in ['notstarted', 'running']:
-            break
-        print ('Waiting for result...')
-        time.sleep(10)
-
-    # Print results, line by line and store it in a .txt file
-    with open('shooters_words_text/' + file_path + '.txt', 'w') as f:
-        if read_result.status == OperationStatusCodes.succeeded:
-            for text_result in read_result.analyze_result.read_results:
-                for line in text_result.lines:
-                    print(line.text)
-                    print(line.bounding_box)
-                    f.write(line.text + ' ')
-
-    '''
-    END - Read File - local
-    '''
-    print("End of Computer Vision quickstart.")
+    # write handwritten text to output file
+    with open(output_file, 'w') as f:
+        f.write('\n'.join(handwritten_text))
+    
+    print(f'Successfully extracted {len(handwritten_text)} instances of handwritten text.')
 
 
+def extract_all_text(pdf_path, output_file):
+    # extract text
+    text = extract_text(pdf_path)
 
-# example of function use
+    # save separate pages of pdf as separate images
+    pages = convert_from_path(pdf_path, dpi=300)
+    all_text = []
+    for i, page in enumerate(pages):
+        # convert page to grayscale and save as temporary image file
+        page_path = f'temp_page_{i}.png'
+        page.save(page_path, 'PNG')
+        img = cv2.imread(page_path, cv2.IMREAD_GRAYSCALE)
 
-pdf_path_list = ['castillo_journal', 'Atchison_note_1']
-for path in pdf_path_list:
-    extract_text(path)
+        # identify all text
+        _, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+        dilate = cv2.dilate(thresh, kernel, iterations=5)
+        contours, _ = cv2.findContours(dilate, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours:
+            x,y,w,h = cv2.boundingRect(cnt)
+            roi = img[y:y+h, x:x+w]
+            text = pytesseract.image_to_string(roi)
+
+            # append text to list
+            all_text.append(text)
+
+        # delete temporary image file
+        os.remove(page_path)
+
+    # write all text to output file
+    with open(output_file, 'w') as f:
+        f.write('\n'.join(all_text))
+
+    print(f'Successfully extracted {len(all_text)} instances of text.')
+
+
+# Example of function use
+pdf_path = 'shooters_words_images/test.pdf'
+output_file = 'shooters_words_text/test.txt'
+extract_all_text(pdf_path, output_file)
+
