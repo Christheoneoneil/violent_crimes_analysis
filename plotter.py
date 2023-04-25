@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import matplotx
+import numpy as np
+import c
+
 
 def plotter(desired_params:list, ref_col:str, df:pd.DataFrame, tickers:list, ncols:int, title:str, colors:list)->None:
     """
@@ -14,7 +17,7 @@ def plotter(desired_params:list, ref_col:str, df:pd.DataFrame, tickers:list, nco
     tickers: given values for each plot
     ncols: number of desired columns
     title: super title of plot
-    corlor: list of colors for plot
+    color: list of colors for plot
     
     Returns:
     None
@@ -30,7 +33,10 @@ def plotter(desired_params:list, ref_col:str, df:pd.DataFrame, tickers:list, nco
             for n, tick in enumerate(tickers):
                 ax = plt.subplot(nrows, ncols, n+1)
                 sub_df[sub_df[ref_col] == tick].plot(ax=ax, color=color, legend=False)
-                ax.axhline(y=0, c="lightsteelblue", linestyle="--")
+                score_mean = np.nanmean(sub_df[sub_df[ref_col] == tick][param].to_list())
+                yvals = [0, score_mean]
+                for axline, d_color in zip(yvals, c.dash_colrs):
+                     ax.axhline(y=axline, c=d_color, linestyle=c.lin_style)
                 ax.get_xaxis().set_visible(False)
                 ax.set_title(tick)
                 sns.despine()
