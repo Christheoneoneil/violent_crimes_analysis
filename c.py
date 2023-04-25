@@ -28,4 +28,4 @@ ousio_dat = "ousiometry_data_augmented.tsv"
 window_size = 50
 colors = ["darkorchid", "crimson"]
 dash_colrs = ["lightsteelblue", "lavender"]
-lin_style = "--"
+lin_styles = ["--", "-"]

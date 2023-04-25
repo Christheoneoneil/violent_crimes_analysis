@@ -22,6 +22,7 @@ def plotter(desired_params:list, ref_col:str, df:pd.DataFrame, tickers:list, nco
     Returns:
     None
     """
+    
     plt.style.use(matplotx.styles.dracula)
     nrows = len(tickers) // ncols + (len(tickers) % ncols > 0)
     for param, color in zip(desired_params, colors):
@@ -32,13 +33,14 @@ def plotter(desired_params:list, ref_col:str, df:pd.DataFrame, tickers:list, nco
             plt.suptitle(param.title() + title.title())
             for n, tick in enumerate(tickers):
                 ax = plt.subplot(nrows, ncols, n+1)
-                sub_df[sub_df[ref_col] == tick].plot(ax=ax, color=color, legend=False)
+                ax.plot(sub_df[sub_df[ref_col] == tick][param].to_list(), c=color)
                 score_mean = np.nanmean(sub_df[sub_df[ref_col] == tick][param].to_list())
                 yvals = [0, score_mean]
-                for axline, d_color in zip(yvals, c.dash_colrs):
-                     ax.axhline(y=axline, c=d_color, linestyle=c.lin_style)
+                for axline, d_color, l_s in zip(yvals, c.dash_colrs, c.lin_styles):
+                     ax.axhline(y=axline, c=d_color, linestyle=l_s, label=round(axline,2))
                 ax.get_xaxis().set_visible(False)
                 ax.set_title(tick)
+                ax.legend()
                 sns.despine()
             
             plt.savefig(param)
