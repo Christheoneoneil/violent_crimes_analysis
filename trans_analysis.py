@@ -1,10 +1,8 @@
 import pandas as pd
 import c
 import os
-import matplotlib.pyplot as plt
 import numpy as np
 import re
-import seaborn as sns
 from plotter import plotter
 
 
@@ -17,12 +15,11 @@ def get_criminal_lines(speaker_df: pd.DataFrame, trans_dir: str) -> pd.DataFrame
     speaker_df: dataframe that specifies which speaker
     is criminal for given video, this was done manually 
     by matching transcripts and listening to the audio
-    trans_dir: transcript containing transcripts
+    trans_dir: directory containing transcripts
     
     Returns:
     pandas data frame of all tagged criminal words 
     per video
-
     """
 
     vid_titles = list(speaker_df[c.title_col_speakers])

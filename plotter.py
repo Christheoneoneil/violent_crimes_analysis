@@ -11,13 +11,13 @@ def plotter(desired_params:list, ref_col:str, df:pd.DataFrame, tickers:list, nco
     plots subplots for given data frame 
 
     Params:
-    desired_parms: list of params for seperate subplots
+    desired_params: list of params for seperate subplots
     ref_col: groupby column 
     df: dataframe for plotting
     tickers: given values for each plot
     ncols: number of desired columns
     title: super title of plot
-    color: list of colors for plot
+    colors: list of colors for plot
     
     Returns:
     None

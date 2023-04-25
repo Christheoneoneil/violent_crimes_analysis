@@ -41,7 +41,7 @@ def get_segments(rttm_dir:str) -> dict:
 
 def get_transcripts(segs:dict, wav_dir:str, trans_dir:list) -> None:
     """
-    use whsiper gather and store transcripts 
+    using whsiper gather and store transcripts 
 
     Params:
     segs: dictionary conatining timestamped diarizations
