@@ -80,8 +80,13 @@ def extract_all_text(pdf_path, output_file):
 
     print(f'Successfully extracted {len(all_text)} instances of text.')
 
-
-# Example of function use
+    
+    
+    
+    
+#---------------------------------------------------------------------
+#                   Extract text from pdf documents
+#---------------------------------------------------------------------
 pdf_path = 'shooters_words_images/test.pdf'
 output_file = 'shooters_words_text/test.txt'
 extract_all_text(pdf_path, output_file)
