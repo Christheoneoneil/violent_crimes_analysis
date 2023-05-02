@@ -25,6 +25,7 @@ def plotter(desired_params:list, ref_col:str, df:pd.DataFrame, tickers:list, nco
     
     plt.style.use(matplotx.styles.dracula)
     nrows = len(tickers) // ncols + (len(tickers) % ncols > 0)
+    plt.rc('font', size=c.font_size) 
     for param, color in zip(desired_params, colors):
             df = df.copy()
             sub_df = df[[ref_col, param]]
@@ -38,7 +39,6 @@ def plotter(desired_params:list, ref_col:str, df:pd.DataFrame, tickers:list, nco
                 yvals = [0, score_mean]
                 for axline, d_color, l_s in zip(yvals, c.dash_colrs, c.lin_styles):
                      ax.axhline(y=axline, c=d_color, linestyle=l_s, label=round(axline,2))
-                ax.get_xaxis().set_visible(False)
                 ax.set_title(tick)
                 ax.legend()
                 sns.despine()

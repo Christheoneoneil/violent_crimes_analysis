@@ -29,3 +29,4 @@ window_size = 50
 colors = ["darkorchid", "crimson"]
 dash_colrs = ["lightsteelblue", "lavender"]
 lin_styles = ["--", "-"]
+font_size = 15
