@@ -53,7 +53,7 @@ def get_expanded_df(criminal_df:pd.DataFrame):
 
 def create_barcharts(criminal_df:pd.DataFrame):
     """
-    expands a dataframe of criminal and their text
+    generates a barchart to show data sparsity
     Params:
     criminal_df: data frame of all criminal transcripts
     Returns:
@@ -108,7 +108,6 @@ def create_barcharts(criminal_df:pd.DataFrame):
 #----------------------------Generate----------------------------------------------
 #----------------------------------------------------------------------------------
 # Define global variables 
-df_lexicon_scores = pd.read_table('ousiometry_data_augmented.tsv')
 folder_path = 'shooters_words_text'
 file_names = [f for f in os.listdir(folder_path) if f.endswith('.txt')]
 
