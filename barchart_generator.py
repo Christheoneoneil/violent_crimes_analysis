@@ -1,4 +1,16 @@
 
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import re
+import numpy as np
+import seaborn as sns
+import os
+import c
+
+
+
+
 def create_criminal_dataFrame(folder_path: str, file_names: list):
     """
     Returns a pandas DataFrame containing file names and their contents.
@@ -83,21 +95,21 @@ def create_barcharts(criminal_df:pd.DataFrame):
     plt.style.use('dark_background')
     # Create the bar plot
     plt.figure(figsize=(15,15))
-    plt.rc('font', size=c.text_size) 
+    plt.rc('font', size=c.font_size) 
     plt.subplots_adjust(bottom=0.15)
     
     sns.barplot(x=counts_df['name'], y=counts_df['total count'], color='gray')
     sns.barplot(x=counts_df['name'], y=counts_df['power scored'],color='teal')
     
     # Set the title and axis labels
-    plt.title('Total Words vs Scored Words')
+    plt.title('Total Words vs Scored Words: Manuscripts')
     plt.xlabel('Name')
     plt.ylabel('Count')
     plt.xticks(rotation=90)
     
 
     # Display the plot
-    plt.savefig('barchart.png')
+    plt.savefig('barchartzzzzz.png')
     plt.show()
 
 
@@ -116,3 +128,9 @@ crim_df = create_criminal_dataFrame(folder_path, file_names)
 
 # Generate barchart
 create_barcharts(crim_df)
+
+
+
+
+
+
