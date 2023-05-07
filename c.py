@@ -1,0 +1,15 @@
+text_col = "Text"
+words_col = "words"
+ousiowords = "word"
+ousiopower = "power"
+ousiodanger = "danger"
+crim_col = "name"
+ncols = 3
+final_df = "final_words.csv"
+sparse_rows = ['Kenneth Bartley', 'Alvaro Castillo']
+ousio_dat = "ousiometry_data_augmented.tsv"
+window_size = 50
+colors = ["darkorchid", "crimson"]
+dash_colrs = ["lightsteelblue", "lavender"]
+lin_styles = ["--", "-"]
+font_size = 15
