@@ -12,3 +12,8 @@ consists of media from or related to 157 perpetrators.
 
 ## Draft Analysis
 Current working location for our research and analysis of the data can be found [here](https://www.overleaf.com/project/6410571da2c0904d6c4fd132).
+
+## Branches
+manuscripts: branch contains scripts that process and analyze manuscript data.
+transcripts: branch contains scripts that process and analyze transcript data.
+pre_merge: branch containes further analysis of work with ousiometrics and other analysis. 
